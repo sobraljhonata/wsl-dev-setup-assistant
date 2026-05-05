@@ -1,0 +1,22 @@
+[project]
+name = "dev-setup-launcher"
+version = "0.1.0"
+description = "Desktop assistant for WSL onboarding and Dev Setup CLI usage"
+requires-python = ">=3.10"
+dependencies = [
+  "kivy>=2.3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.6.0",
+  "pre-commit>=3.0.0"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

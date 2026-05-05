@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+app/__init__.py
+app/main.py
+app/domain/command_result.py
+app/domain/distro.py
+app/services/command_runner.py
+app/services/devsetup_service.py
+app/services/wsl_service.py
+app/ui/terminal_widget.py
+dev_setup_launcher.egg-info/PKG-INFO
+dev_setup_launcher.egg-info/SOURCES.txt
+dev_setup_launcher.egg-info/dependency_links.txt
+dev_setup_launcher.egg-info/requires.txt
+dev_setup_launcher.egg-info/top_level.txt
