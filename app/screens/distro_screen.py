@@ -26,14 +26,14 @@ class DistroScreen(Screen):
         explanation = Label(
             text=(
                 "Ubuntu é recomendado para iniciantes.\n"
-                "Você poderá instalar ferramentas de desenvolvimento nele."
+                "Depois da instalação, a primeira execução criará seu usuário Linux."
             ),
             size_hint_y=0.2,
         )
 
         self.status_label = Label(
-            text="Clique em carregar distros",
-            size_hint_y=0.1,
+            text="Clique em carregar distros.",
+            size_hint_y=0.12,
         )
 
         self.spinner = Spinner(
@@ -52,14 +52,21 @@ class DistroScreen(Screen):
             size_hint_y=0.12,
         )
 
-        next_button = Button(
+        launch_button = Button(
+            text="Abrir primeira execução",
+            size_hint_y=0.12,
+        )
+
+        self.next_button = Button(
             text="Ir para terminal assistido",
             size_hint_y=0.12,
+            disabled=True,
         )
 
         load_button.bind(on_press=self.load_distros)
         install_button.bind(on_press=self.install_distro)
-        next_button.bind(on_press=self.go_next)
+        launch_button.bind(on_press=self.launch_distro)
+        self.next_button.bind(on_press=self.go_next)
 
         layout.add_widget(title)
         layout.add_widget(explanation)
@@ -67,7 +74,8 @@ class DistroScreen(Screen):
         layout.add_widget(self.spinner)
         layout.add_widget(load_button)
         layout.add_widget(install_button)
-        layout.add_widget(next_button)
+        layout.add_widget(launch_button)
+        layout.add_widget(self.next_button)
 
         self.add_widget(layout)
 
@@ -75,58 +83,80 @@ class DistroScreen(Screen):
         self.status_label.text = "Carregando distros..."
 
         self.app.async_command_service.run(
-            task=self.app.wsl_service.list_available_distros_result,
+            task=self.app.wsl_service.fetch_available_distros,
             on_success=self._on_distros_loaded,
             on_error=self._on_error,
         )
 
     def _on_distros_loaded(self, result):
         if not result.succeeded:
-            self.status_label.text = result.stderr
+            self.status_label.text = result.stderr or "Erro ao carregar distros."
             return
 
-        distros = self.app.wsl_service._parse_available_distros(
-            result.stdout
-        )
+        distros = self.app.wsl_service.parse_available_distros(result.stdout)
 
         if not distros:
-            self.status_label.text = "Nenhuma distro encontrada"
+            self.status_label.text = "Nenhuma distro encontrada."
             return
 
         distro_names = [distro.name for distro in distros]
 
         self.spinner.values = distro_names
-        self.spinner.text = distro_names[0]
+        self.spinner.text = "Ubuntu" if "Ubuntu" in distro_names else distro_names[0]
 
-        self.status_label.text = (
-            f"{len(distro_names)} distros encontradas"
-        )
+        self.status_label.text = f"{len(distro_names)} distros encontradas."
 
     def install_distro(self, *_):
         selected_distro = self.spinner.text
+        self.app.selected_distro = selected_distro
 
         self.status_label.text = (
-            f"Instalando {selected_distro}..."
+            f"Instalando {selected_distro}. "
+            "Esse processo pode demorar e pode exigir reinício do Windows."
         )
 
         self.app.async_command_service.run(
-            task=lambda: self.app.wsl_service.install_distro(
-                selected_distro
-            ),
+            task=lambda: self.app.wsl_service.install_distro(selected_distro),
             on_success=self._on_install_success,
+            on_error=self._on_error,
+        )
+
+    def launch_distro(self, *_):
+        selected_distro = self.spinner.text
+        self.app.selected_distro = selected_distro
+
+        self.status_label.text = (
+            "Abrindo a distro pela primeira vez. "
+            "Crie um usuário Linux e uma senha no terminal."
+        )
+
+        self.app.async_command_service.run(
+            task=lambda: self.app.wsl_service.launch_distro(selected_distro),
+            on_success=self._on_launch_success,
             on_error=self._on_error,
         )
 
     def _on_install_success(self, result):
         if result.succeeded:
             self.status_label.text = (
-                "Instalação concluída."
+                "Instalação concluída. Agora abra a primeira execução da distro."
             )
-        else:
-            self.status_label.text = result.stderr
+            return
+
+        self.status_label.text = result.stderr or "Erro ao instalar distro."
+
+    def _on_launch_success(self, result):
+        if result.succeeded:
+            self.status_label.text = (
+                "Distro aberta. Se você criou o usuário Linux, pode avançar."
+            )
+            self.next_button.disabled = False
+            return
+
+        self.status_label.text = result.stderr or "Erro ao abrir distro."
 
     def _on_error(self, error):
-        self.status_label.text = f"Erro: {error}"
+        self.status_label.text = f"Erro inesperado: {error}"
 
     def go_next(self, *_):
         self.app.selected_distro = self.spinner.text

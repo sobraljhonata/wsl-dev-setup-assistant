@@ -12,13 +12,16 @@ class WslService:
     def get_status(self) -> CommandResult:
         return self.runner.run([WSL_COMMAND, "--status"])
 
+    def fetch_available_distros(self) -> CommandResult:
+        return self.runner.run([WSL_COMMAND, "--list", "--online"])
+
     def list_available_distros(self) -> list[Distro]:
-        result = self.runner.run([WSL_COMMAND, "--list", "--online"])
+        result = self.fetch_available_distros()
 
         if not result.succeeded:
             return []
 
-        return self._parse_available_distros(result.stdout)
+        return self.parse_available_distros(result.stdout)
 
     def list_installed_distros(self) -> CommandResult:
         return self.runner.run([WSL_COMMAND, "--list", "--verbose"])
@@ -42,7 +45,7 @@ class WslService:
             ]
         )
 
-    def _parse_available_distros(self, output: str) -> list[Distro]:
+    def parse_available_distros(self, output: str) -> list[Distro]:
         distros: list[Distro] = []
 
         for line in output.splitlines():
@@ -67,6 +70,3 @@ class WslService:
             distros.append(Distro(name=name, friendly_name=friendly_name))
 
         return distros
-
-    def list_available_distros_result(self) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "--list", "--online"])

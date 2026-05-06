@@ -1,16 +1,17 @@
 from collections.abc import Callable
 from threading import Thread
+from typing import TypeVar
 
 from kivy.clock import Clock
 
-from app.domain.command_result import CommandResult
+T = TypeVar("T")
 
 
 class AsyncCommandService:
     def run(
         self,
-        task: Callable[[], CommandResult],
-        on_success: Callable[[CommandResult], None],
+        task: Callable[[], T],
+        on_success: Callable[[T], None],
         on_error: Callable[[Exception], None],
     ) -> None:
         thread = Thread(
@@ -22,8 +23,8 @@ class AsyncCommandService:
 
     def _execute(
         self,
-        task: Callable[[], CommandResult],
-        on_success: Callable[[CommandResult], None],
+        task: Callable[[], T],
+        on_success: Callable[[T], None],
         on_error: Callable[[Exception], None],
     ) -> None:
         try:

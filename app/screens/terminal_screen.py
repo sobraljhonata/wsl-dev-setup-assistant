@@ -32,46 +32,29 @@ class TerminalScreen(Screen):
             size_hint_y=0.08,
         )
 
-        guided_buttons = BoxLayout(
+        devsetup_buttons = BoxLayout(
             orientation="horizontal",
             spacing=8,
             size_hint_y=0.16,
         )
 
-        help_button = Button(text="devsetup --help")
-        doctor_button = Button(text="devsetup doctor")
-        dry_run_button = Button(text="Simular backend")
-        install_cli_button = Button(text="Instalar CLI")
+        self.bootstrap_button = Button(text="Preparar Python/Pip")
+        self.install_cli_button = Button(text="Instalar CLI")
+        self.help_button = Button(text="devsetup --help")
+        self.doctor_button = Button(text="devsetup doctor")
+        self.dry_run_button = Button(text="Simular backend")
 
-        help_button.bind(
-            on_press=lambda *_: self.run_guided_command(
-                "devsetup --help",
-                "Mostra todos os comandos disponíveis no Dev Setup CLI.",
-            )
-        )
+        self.bootstrap_button.bind(on_press=lambda *_: self.bootstrap_python())
+        self.install_cli_button.bind(on_press=lambda *_: self.install_devsetup_cli())
+        self.help_button.bind(on_press=lambda *_: self.run_devsetup_help())
+        self.doctor_button.bind(on_press=lambda *_: self.run_devsetup_doctor())
+        self.dry_run_button.bind(on_press=lambda *_: self.run_devsetup_dry_run())
 
-        doctor_button.bind(
-            on_press=lambda *_: self.run_guided_command(
-                "devsetup doctor",
-                "Verifica se ferramentas e versões mínimas estão corretas.",
-            )
-        )
-
-        dry_run_button.bind(
-            on_press=lambda *_: self.run_guided_command(
-                "devsetup --dry-run --yes profile backend",
-                "Simula o profile backend sem instalar nada de verdade.",
-            )
-        )
-
-        install_cli_button.bind(
-            on_press=lambda *_: self.install_devsetup_cli()
-        )
-
-        guided_buttons.add_widget(install_cli_button)
-        guided_buttons.add_widget(help_button)
-        guided_buttons.add_widget(doctor_button)
-        guided_buttons.add_widget(dry_run_button)
+        devsetup_buttons.add_widget(self.bootstrap_button)
+        devsetup_buttons.add_widget(self.install_cli_button)
+        devsetup_buttons.add_widget(self.help_button)
+        devsetup_buttons.add_widget(self.doctor_button)
+        devsetup_buttons.add_widget(self.dry_run_button)
 
         basic_buttons = BoxLayout(
             orientation="horizontal",
@@ -123,65 +106,112 @@ class TerminalScreen(Screen):
 
         layout.add_widget(title)
         layout.add_widget(subtitle)
-        layout.add_widget(guided_buttons)
+        layout.add_widget(devsetup_buttons)
         layout.add_widget(basic_buttons)
         layout.add_widget(self.terminal)
 
         self.add_widget(layout)
 
     def on_pre_enter(self, *_args) -> None:
+        if self.terminal.output.text:
+            return
+
         self.terminal.append_output("Bem-vindo ao Terminal Assistido.")
+        self.terminal.append_output("Dica: comece com 'whoami', 'pwd' e 'ls'.")
         self.terminal.append_output(
-            "Dica: comece com 'whoami', 'pwd' e 'ls'."
+            "Depois prepare Python/Pip, instale o Dev Setup CLI "
+            "e rode 'devsetup --help'."
         )
-        self.terminal.append_output(
-            "Depois instale o Dev Setup CLI e rode 'devsetup --help'."
+
+    def bootstrap_python(self) -> None:
+        self._run_async(
+            loading_message=(
+                "Preparando Python, pip e venv na distro Linux...\n"
+                "Este comando pode pedir a senha do usuário Linux por usar sudo.\n"
+                "Se a senha não aparecer enquanto você digita, isso é normal no Linux."
+            ),
+            task=lambda: self.app.devsetup_service.bootstrap_python(
+                self.app.selected_distro
+            ),
         )
 
     def install_devsetup_cli(self) -> None:
-        self.terminal.append_output(
-            "Instalando Dev Setup CLI dentro da distro Linux..."
-        )
-        self.terminal.append_output(
-            "Esse processo pode demorar alguns minutos."
-        )
-
-        self.app.async_command_service.run(
+        self._run_async(
+            loading_message=(
+                "Instalando Dev Setup CLI dentro da distro Linux...\n"
+                "Esse processo pode demorar alguns minutos."
+            ),
             task=lambda: self.app.devsetup_service.install_cli(
                 self.app.selected_distro
             ),
-            on_success=self._on_command_success,
-            on_error=self._on_error,
+        )
+
+    def run_devsetup_help(self) -> None:
+        self._run_async(
+            loading_message=(
+                "Explicação: mostra todos os comandos disponíveis "
+                "no Dev Setup CLI."
+            ),
+            task=lambda: self.app.devsetup_service.show_help(
+                self.app.selected_distro
+            ),
+        )
+
+    def run_devsetup_doctor(self) -> None:
+        self._run_async(
+            loading_message=(
+                "Explicação: verifica ferramentas, versões mínimas "
+                "e serviços do ambiente."
+            ),
+            task=lambda: self.app.devsetup_service.run_doctor(
+                self.app.selected_distro
+            ),
+        )
+
+    def run_devsetup_dry_run(self) -> None:
+        self._run_async(
+            loading_message=(
+                "Explicação: simula o profile backend sem instalar nada de verdade."
+            ),
+            task=lambda: self.app.devsetup_service.dry_run_backend_profile(
+                self.app.selected_distro
+            ),
         )
 
     def run_guided_command(self, command: str, explanation: str) -> None:
-        self.terminal.append_output("")
-        self.terminal.append_output(f"Explicação: {explanation}")
-        self.terminal.append_output(f"Comando sugerido: {command}")
-
-        self.app.async_command_service.run(
+        self._run_async(
+            loading_message=(
+                f"Explicação: {explanation}\n"
+                f"Comando sugerido: {command}"
+            ),
             task=lambda: self.app.wsl_service.run_in_distro(
                 self.app.selected_distro,
                 command,
             ),
-            on_success=self._on_command_success,
-            on_error=self._on_error,
         )
 
     def run_custom_command(self, command: str) -> None:
-        self.terminal.append_output("")
-        self.terminal.append_output(f"Executando comando digitado: {command}")
-
-        self.app.async_command_service.run(
+        self._run_async(
+            loading_message=f"Executando comando digitado: {command}",
             task=lambda: self.app.wsl_service.run_in_distro(
                 self.app.selected_distro,
                 command,
             ),
+        )
+
+    def _run_async(self, loading_message, task) -> None:
+        self.terminal.append_output("")
+        self.terminal.append_output(loading_message)
+        self._set_buttons_disabled(True)
+
+        self.app.async_command_service.run(
+            task=task,
             on_success=self._on_command_success,
             on_error=self._on_error,
         )
 
     def _on_command_success(self, result) -> None:
+        self._set_buttons_disabled(False)
         self.terminal.append_output(f"$ {result.command}")
 
         if result.stdout:
@@ -196,4 +226,12 @@ class TerminalScreen(Screen):
             )
 
     def _on_error(self, error: Exception) -> None:
+        self._set_buttons_disabled(False)
         self.terminal.append_output(f"Erro inesperado: {error}")
+
+    def _set_buttons_disabled(self, disabled: bool) -> None:
+        self.bootstrap_button.disabled = disabled
+        self.install_cli_button.disabled = disabled
+        self.help_button.disabled = disabled
+        self.doctor_button.disabled = disabled
+        self.dry_run_button.disabled = disabled

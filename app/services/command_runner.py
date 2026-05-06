@@ -5,7 +5,7 @@ import sys
 from app.domain.command_result import CommandResult
 
 
-def get_system_encoding() -> str:
+def _get_system_encoding() -> str:
     if sys.platform.startswith("win"):
         return "mbcs"
 
@@ -13,15 +13,24 @@ def get_system_encoding() -> str:
 
 
 class CommandRunner:
-    def run(self, command: list[str]) -> CommandResult:
+    def run(
+        self,
+        command: list[str],
+        cwd: str | None = None,
+        timeout: int = 300,
+        env: dict[str, str] | None = None,
+    ) -> CommandResult:
         try:
             completed_process = subprocess.run(
                 command,
                 capture_output=True,
                 text=True,
-                encoding=get_system_encoding(),
+                encoding=_get_system_encoding(),
                 errors="replace",
                 shell=False,
+                cwd=cwd,
+                timeout=timeout,
+                env=env,
             )
 
             return CommandResult(
@@ -30,6 +39,7 @@ class CommandRunner:
                 stderr=completed_process.stderr.strip(),
                 return_code=completed_process.returncode,
             )
+
         except FileNotFoundError:
             return CommandResult(
                 command=" ".join(command),
@@ -39,4 +49,12 @@ class CommandRunner:
                     "Execute este app no Windows com o WSL disponível."
                 ),
                 return_code=127,
+            )
+
+        except subprocess.TimeoutExpired:
+            return CommandResult(
+                command=" ".join(command),
+                stdout="",
+                stderr="O comando excedeu o tempo limite de execução.",
+                return_code=124,
             )

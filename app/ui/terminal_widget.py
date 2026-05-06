@@ -40,12 +40,21 @@ class TerminalWidget(BoxLayout):
 
     def append_output(self, text: str) -> None:
         self.output.text += f"{text}\n"
+        self.output.cursor = (0, len(self.output.text))
+        self.output.scroll_y = 0
+
+    def append_command(self, command: str) -> None:
+        self.append_output(f"$ {command}")
 
     def set_command(self, command: str) -> None:
         self.command_input.text = command
+
+    def clear(self) -> None:
+        self.output.text = ""
 
     def _handle_execute(self, *_args) -> None:
         command = self.command_input.text.strip()
 
         if command:
+            self.command_input.text = ""
             self.on_execute(command)

@@ -8,26 +8,52 @@ class WelcomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+        layout = BoxLayout(
+            orientation="vertical",
+            padding=20,
+            spacing=12,
+        )
 
         title = Label(
-            text="WSL Dev Setup Assistant",
-            font_size=24,
+            text="[b]WSL Dev Setup Assistant[/b]",
+            markup=True,
+            font_size=28,
+            size_hint_y=0.2,
         )
 
         subtitle = Label(
-            text="Vamos configurar seu ambiente Linux no Windows",
+            text=(
+                "Este assistente vai ajudar você a:\n\n"
+                "• instalar Linux no WSL\n"
+                "• aprender comandos básicos do terminal\n"
+                "• preparar um ambiente de desenvolvimento\n"
+                "• usar o Dev Setup CLI"
+            ),
+            halign="center",
+            valign="middle",
+            size_hint_y=0.4,
+        )
+
+        explanation = Label(
+            text=(
+                "O objetivo não é esconder o Linux,\n"
+                "mas ajudar você a aprender Linux com segurança."
+            ),
+            italic=True,
+            size_hint_y=0.2,
         )
 
         start_button = Button(
             text="Começar",
-            size_hint_y=0.2,
+            size_hint=(0.4, 0.2),
+            pos_hint={"center_x": 0.5},
         )
 
         start_button.bind(on_press=self.go_next)
 
         layout.add_widget(title)
         layout.add_widget(subtitle)
+        layout.add_widget(explanation)
         layout.add_widget(start_button)
 
         self.add_widget(layout)

@@ -1,10 +1,32 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "dev-setup-launcher"
+name = "wsl-dev-setup-assistant"
 version = "0.1.0"
 description = "Desktop assistant for WSL onboarding and Dev Setup CLI usage"
-requires-python = ">=3.10"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+
+license = { text = "MIT" }
+
+authors = [
+  { name = "Jhonata Sobral" }
+]
+
+keywords = [
+  "wsl",
+  "linux",
+  "windows",
+  "kivy",
+  "developer-tools",
+  "onboarding",
+  "education"
+]
+
 dependencies = [
-  "kivy>=2.3.0"
+  "kivy>=2.3.1"
 ]
 
 [project.optional-dependencies]
@@ -19,4 +41,11 @@ line-length = 88
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
