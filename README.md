@@ -20,6 +20,14 @@ Reduzir a barreira inicial de uso do Linux/terminal para usuários Windows, guia
 ## Rodar
 
 ```bash
+.venv\Scripts\activate.bat
+python.exe -m pip install --upgrade pip
+pip install -e ".[dev]"
+python -m app.main
+
+py -3.12 -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip setuptools wheel
 pip install -e ".[dev]"
 python -m app.main
 

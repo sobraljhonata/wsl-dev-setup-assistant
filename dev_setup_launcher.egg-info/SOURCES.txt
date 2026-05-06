@@ -4,6 +4,11 @@ app/__init__.py
 app/main.py
 app/domain/command_result.py
 app/domain/distro.py
+app/screens/distro_screen.py
+app/screens/terminal_screen.py
+app/screens/welcome_screen.py
+app/screens/wsl_check_screen.py
+app/services/async_command_service.py
 app/services/command_runner.py
 app/services/devsetup_service.py
 app/services/wsl_service.py

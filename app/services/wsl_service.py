@@ -31,7 +31,15 @@ class WslService:
 
     def run_in_distro(self, distro_name: str, command: str) -> CommandResult:
         return self.runner.run(
-            [WSL_COMMAND, "-d", distro_name, "--", "bash", "-lc", command]
+            [
+                WSL_COMMAND,
+                "-d",
+                distro_name,
+                "--",
+                "bash",
+                "-lc",
+                command,
+            ]
         )
 
     def _parse_available_distros(self, output: str) -> list[Distro]:

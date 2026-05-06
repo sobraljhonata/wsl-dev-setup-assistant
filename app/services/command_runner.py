@@ -1,6 +1,15 @@
+import locale
 import subprocess
+import sys
 
 from app.domain.command_result import CommandResult
+
+
+def get_system_encoding() -> str:
+    if sys.platform.startswith("win"):
+        return "mbcs"
+
+    return locale.getpreferredencoding(False) or "utf-8"
 
 
 class CommandRunner:
@@ -10,6 +19,8 @@ class CommandRunner:
                 command,
                 capture_output=True,
                 text=True,
+                encoding=get_system_encoding(),
+                errors="replace",
                 shell=False,
             )
 
@@ -19,14 +30,13 @@ class CommandRunner:
                 stderr=completed_process.stderr.strip(),
                 return_code=completed_process.returncode,
             )
-        except FileNotFoundError as error:
+        except FileNotFoundError:
             return CommandResult(
                 command=" ".join(command),
                 stdout="",
                 stderr=(
                     f"Comando não encontrado: {command[0]}. "
-                    "Se você está rodando dentro do WSL, execute este app no Windows "
-                    "ou garanta que wsl.exe esteja acessível."
+                    "Execute este app no Windows com o WSL disponível."
                 ),
                 return_code=127,
             )
