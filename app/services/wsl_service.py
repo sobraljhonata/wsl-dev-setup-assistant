@@ -1,8 +1,7 @@
 from app.domain.command_result import CommandResult
 from app.domain.distro import Distro
 from app.services.command_runner import CommandRunner
-
-WSL_COMMAND = "wsl.exe"
+from app.config.settings import WINDOWS_WSL_COMMAND as WSL_COMMAND
 
 
 class WslService:

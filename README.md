@@ -1,36 +1,167 @@
-# Dev Setup Launcher
+# WSL Dev Setup Assistant
 
-Aplicação desktop educacional em Kivy para facilitar o onboarding de alunos no WSL, Linux e Dev Setup CLI.
+Aplicação desktop educacional construída com Kivy para facilitar o onboarding de usuários Windows no WSL, Linux e terminal.
 
-## Objetivo
+---
 
-Reduzir a barreira inicial de uso do Linux/terminal para usuários Windows, guiando a instalação do WSL, a escolha de uma distro Linux e o uso assistido do Dev Setup CLI.
+## 🎯 Objetivo
 
-## MVP
+O projeto busca reduzir a barreira inicial de uso do Linux para estudantes e iniciantes em desenvolvimento, guiando:
 
-- Verificar WSL
-- Listar distros disponíveis
-- Instalar distro
-- Abrir primeira execução da distro
-- Orientar criação de usuário Linux
-- Terminal assistido
-- Instalar e executar Dev Setup CLI
-- Explicar comandos como `doctor`, `--help` e `--dry-run`
+* instalação do WSL
+* escolha de distribuições Linux
+* criação do primeiro usuário Linux
+* aprendizado básico de terminal
+* uso assistido do Dev Setup CLI
 
-## Rodar
+O objetivo não é esconder o Linux, mas ajudar o usuário a aprender Linux com segurança e contexto.
 
-```bash
-.venv\Scripts\activate.bat
-python.exe -m pip install --upgrade pip
-pip install -e ".[dev]"
-python -m app.main
+---
 
-py -3.12 -m venv .venv
-.\.venv\Scripts\activate
-python -m pip install --upgrade pip setuptools wheel
-pip install -e ".[dev]"
-python -m app.main
+## 👨‍🏫 Público-alvo
 
-sudo apt update
-sudo apt install -y libmtdev1 xclip xsel
+* estudantes iniciantes em programação
+* alunos aprendendo Linux e terminal
+* usuários Windows sem experiência com WSL
+* onboarding técnico em ambientes educacionais
+
+---
+
+## 🚀 MVP Atual
+
+* Verificação do WSL
+* Listagem de distribuições disponíveis
+* Instalação de distro Linux
+* Primeira execução da distro
+* Orientação para criação de usuário Linux
+* Terminal assistido
+* Instalação do Dev Setup CLI
+* Execução guiada de:
+
+  * `devsetup --help`
+  * `devsetup doctor`
+  * `devsetup --dry-run`
+
+---
+
+## 🏗️ Arquitetura
+
+```text
+UI (Kivy Screens)
+        ↓
+Services Layer
+        ↓
+WSL Integration
+        ↓
+subprocess / wsl.exe
 ```
+
+---
+
+## ⚙️ Requisitos
+
+* Windows 10/11
+* WSL habilitado
+* Python 3.12
+* pip
+* Git
+
+---
+
+## 📦 Instalação
+
+### Criar ambiente virtual
+
+```powershell
+py -3.12 -m venv .venv
+```
+
+### Ativar ambiente virtual
+
+```powershell
+.\.venv\Scripts\activate
+```
+
+### Atualizar ferramentas básicas
+
+```powershell
+python -m pip install --upgrade pip setuptools wheel
+```
+
+### Instalar dependências
+
+```powershell
+pip install -e ".[dev]"
+```
+
+---
+
+## ▶️ Executar aplicação
+
+```powershell
+python -m app.main
+```
+
+---
+
+## 🧠 Fluxo educacional
+
+O fluxo atual da aplicação é:
+
+```text
+Welcome
+→ Verificar WSL
+→ Escolher distro
+→ Instalar distro
+→ Primeira execução Linux
+→ Terminal assistido
+```
+
+---
+
+## 🖥️ Screenshots
+
+> Adicionar screenshots e GIFs do fluxo da aplicação.
+
+---
+
+## ⚠️ Limitações atuais
+
+* Algumas instalações podem solicitar senha Linux (`sudo`)
+* Primeira execução da distro ainda depende do terminal do WSL
+* O projeto está em fase de PoC/MVP
+
+---
+
+## 🛣️ Roadmap
+
+* [ ] Melhorias visuais com múltiplas telas
+* [ ] Histórico de comandos
+* [ ] Terminal mais interativo
+* [ ] Build `.exe` com PyInstaller
+* [ ] Modo aula com cards educacionais
+* [ ] Testes automatizados
+* [ ] Download automático de dependências
+* [ ] Suporte a múltiplos profiles Dev Setup
+
+---
+
+## 🤝 Contribuição
+
+Pull requests são bem-vindos.
+
+---
+
+## 📄 Licença
+
+MIT
+
+---
+
+## 💡 Relacionado
+
+Este projeto funciona em conjunto com:
+
+* Dev Setup CLI
+* WSL
+* Windows Terminal

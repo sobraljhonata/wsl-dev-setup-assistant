@@ -3,7 +3,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.spinner import Spinner
-
+from app.config.settings import DEFAULT_DISTRO
 
 class DistroScreen(Screen):
     def __init__(self, app_ref, **kwargs):
@@ -37,8 +37,8 @@ class DistroScreen(Screen):
         )
 
         self.spinner = Spinner(
-            text="Ubuntu",
-            values=("Ubuntu",),
+            text=DEFAULT_DISTRO,
+            values=(DEFAULT_DISTRO,),
             size_hint_y=0.12,
         )
 
@@ -102,7 +102,7 @@ class DistroScreen(Screen):
         distro_names = [distro.name for distro in distros]
 
         self.spinner.values = distro_names
-        self.spinner.text = "Ubuntu" if "Ubuntu" in distro_names else distro_names[0]
+        self.spinner.text = DEFAULT_DISTRO if DEFAULT_DISTRO in distro_names else distro_names[0]
 
         self.status_label.text = f"{len(distro_names)} distros encontradas."
 

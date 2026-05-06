@@ -1,6 +1,9 @@
 from app.domain.command_result import CommandResult
 from app.services.wsl_service import WslService
-
+from app.config.settings import (
+    DEVSETUP_COMMAND,
+    DEVSETUP_PACKAGE,
+)
 
 DEVSETUP_PATH_PREFIX = 'export PATH="$HOME/.local/bin:$PATH" && '
 
@@ -20,21 +23,21 @@ class DevSetupService:
     def install_cli(self, distro_name: str) -> CommandResult:
         command = (
             "python3 -m pip install --user --upgrade pip && "
-            "python3 -m pip install --user dev-setup-cli-jhonata"
+            f"python3 -m pip install --user {DEVSETUP_PACKAGE}"
         )
 
         return self.wsl_service.run_in_distro(distro_name, command)
 
     def show_help(self, distro_name: str) -> CommandResult:
-        return self._run_devsetup(distro_name, "devsetup --help")
+        return self._run_devsetup(distro_name, "{DEVSETUP_COMMAND} --help")
 
     def run_doctor(self, distro_name: str) -> CommandResult:
-        return self._run_devsetup(distro_name, "devsetup doctor")
+        return self._run_devsetup(distro_name, "{DEVSETUP_COMMAND} doctor")
 
     def dry_run_backend_profile(self, distro_name: str) -> CommandResult:
         return self._run_devsetup(
             distro_name,
-            "devsetup --dry-run --yes profile backend",
+            "{DEVSETUP_COMMAND} --dry-run --yes profile backend",
         )
 
     def _run_devsetup(self, distro_name: str, command: str) -> CommandResult:

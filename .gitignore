@@ -1,2 +1,76 @@
-.venv
-__pycache__
+# Virtual environments
+
+.venv/
+venv/
+env/
+
+# Python cache
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Coverage / pytest
+
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Ruff / lint
+
+.ruff_cache/
+
+# Type checking
+
+.mypy_cache/
+
+# IDEs / editors
+
+.vscode/
+.idea/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
+
+# Kivy
+
+.kivy/
+
+# PyInstaller
+
+*.spec
+
+# Environment variables
+
+.env
+.env.*
+
+# Temporary files
+
+*.tmp
+*.bak
+*.swp
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Local SQLite databases
+
+*.db
+*.sqlite3
