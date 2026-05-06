@@ -1,7 +1,14 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+
+from app.ui.loading_overlay import LoadingOverlay
+from app.ui.navigation_bar import NavigationBar
+from app.ui.page_container import PageContainer
+from app.ui.stepper import Stepper
+from app.config.settings import (
+    STEPS,
+)
 
 
 class WslCheckScreen(Screen):
@@ -9,15 +16,18 @@ class WslCheckScreen(Screen):
         super().__init__(**kwargs)
 
         self.app = app_ref
+        self.loading = None
 
-        layout = BoxLayout(
-            orientation="vertical",
-            padding=20,
-            spacing=10,
+        layout = PageContainer()
+
+        stepper = Stepper(
+            steps=STEPS,
+            current_step=1,
         )
 
         title = Label(
-            text="Verificação do WSL",
+            text="[b]Distros Linux instaladas[/b]",
+            markup=True,
             font_size=24,
             size_hint_y=0.15,
         )
@@ -25,40 +35,49 @@ class WslCheckScreen(Screen):
         explanation = Label(
             text=(
                 "O WSL permite executar Linux dentro do Windows.\n"
-                "Antes de continuar, vamos verificar se ele está disponível."
+                "Vamos verificar quais distros estão instaladas e qual versão do WSL elas usam."
             ),
+            halign="center",
+            valign="middle",
             size_hint_y=0.25,
         )
 
         self.status_label = Label(
             text="Clique para verificar o WSL.",
+            halign="center",
+            valign="middle",
             size_hint_y=0.2,
         )
 
         check_button = Button(
             text="Verificar WSL",
-            size_hint_y=0.15,
+            size_hint_y=0.14,
         )
 
-        self.next_button = Button(
-            text="Próximo",
-            size_hint_y=0.15,
-            disabled=True,
+        check_button.bind(on_press=lambda *_: self.check_wsl())
+
+        self.navigation = NavigationBar(
+            on_back=self.go_back,
+            on_next=self.go_next,
+            next_disabled=True,
         )
 
-        check_button.bind(on_press=self.check_wsl)
-        self.next_button.bind(on_press=self.go_next)
-
+        layout.add_widget(stepper)
         layout.add_widget(title)
         layout.add_widget(explanation)
         layout.add_widget(self.status_label)
         layout.add_widget(check_button)
-        layout.add_widget(self.next_button)
+        layout.add_widget(self.navigation)
 
         self.add_widget(layout)
 
-    def check_wsl(self, *_):
+    def on_pre_enter(self, *_args) -> None:
+        self.navigation.set_next_disabled(True)
+
+    def check_wsl(self) -> None:
         self.status_label.text = "Verificando WSL..."
+        self.loading = LoadingOverlay("Verificando WSL...")
+        self.loading.open()
 
         self.app.async_command_service.run(
             task=self.app.wsl_service.get_status,
@@ -66,21 +85,32 @@ class WslCheckScreen(Screen):
             on_error=self._on_error,
         )
 
-    def _on_success(self, result):
+    def _on_success(self, result) -> None:
+        self._close_loading()
+
         if result.succeeded:
             self.status_label.text = result.stdout or "WSL verificado com sucesso."
-            self.next_button.disabled = False
+            self.navigation.set_next_disabled(False)
             return
 
         self.status_label.text = (
             result.stderr
             or "Não foi possível verificar o WSL. Verifique se ele está instalado."
         )
-        self.next_button.disabled = True
+        self.navigation.set_next_disabled(True)
 
-    def _on_error(self, error):
+    def _on_error(self, error: Exception) -> None:
+        self._close_loading()
         self.status_label.text = f"Erro inesperado: {error}"
-        self.next_button.disabled = True
+        self.navigation.set_next_disabled(True)
 
-    def go_next(self, *_):
+    def _close_loading(self) -> None:
+        if self.loading:
+            self.loading.dismiss()
+            self.loading = None
+
+    def go_back(self) -> None:
+        self.manager.current = "welcome"
+
+    def go_next(self) -> None:
         self.manager.current = "distro"

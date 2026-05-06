@@ -1,7 +1,13 @@
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+
+from app.config.settings import APP_NAME
+from app.ui.navigation_bar import NavigationBar
+from app.ui.page_container import PageContainer
+from app.ui.stepper import Stepper
+from app.config.settings import (
+    STEPS,
+)
 
 
 class WelcomeScreen(Screen):
@@ -9,17 +15,17 @@ class WelcomeScreen(Screen):
         super().__init__(**kwargs)
 
         self.app = app_ref
-
         platform_info = self.app.platform_service.get_platform_info()
 
-        layout = BoxLayout(
-            orientation="vertical",
-            padding=20,
-            spacing=12,
+        layout = PageContainer()
+
+        stepper = Stepper(
+            steps=STEPS,
+            current_step=0,
         )
 
         title = Label(
-            text="[b]WSL Dev Setup Assistant[/b]",
+            text=f"[b]{APP_NAME}[/b]",
             markup=True,
             font_size=28,
             size_hint_y=0.18,
@@ -38,10 +44,8 @@ class WelcomeScreen(Screen):
             size_hint_y=0.32,
         )
 
-        platform_text = self._get_platform_message(platform_info)
-
-        self.platform_label = Label(
-            text=platform_text,
+        platform_label = Label(
+            text=self._get_platform_message(platform_info),
             halign="center",
             valign="middle",
             size_hint_y=0.22,
@@ -56,20 +60,17 @@ class WelcomeScreen(Screen):
             size_hint_y=0.12,
         )
 
-        start_button = Button(
-            text="Começar",
-            size_hint=(0.4, 0.14),
-            pos_hint={"center_x": 0.5},
-            disabled=not platform_info.is_supported_for_launcher,
+        navigation = NavigationBar(
+            on_next=self.go_next,
+            next_disabled=not platform_info.is_supported_for_launcher,
         )
 
-        start_button.bind(on_press=self.go_next)
-
+        layout.add_widget(stepper)
         layout.add_widget(title)
         layout.add_widget(subtitle)
-        layout.add_widget(self.platform_label)
+        layout.add_widget(platform_label)
         layout.add_widget(explanation)
-        layout.add_widget(start_button)
+        layout.add_widget(navigation)
 
         self.add_widget(layout)
 
@@ -98,5 +99,5 @@ class WelcomeScreen(Screen):
             "Este launcher foi pensado para Windows com WSL."
         )
 
-    def go_next(self, *_):
+    def go_next(self) -> None:
         self.manager.current = "wsl_check"

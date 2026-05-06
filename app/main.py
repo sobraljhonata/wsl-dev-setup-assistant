@@ -16,6 +16,7 @@ from app.services.async_command_service import AsyncCommandService
 from app.services.devsetup_service import DevSetupService
 from app.services.platform_service import PlatformService
 from app.services.wsl_service import WslService
+from app.screens.first_run_screen import FirstRunScreen
 
 Config.set("graphics", "width", str(DEFAULT_WINDOW_WIDTH))
 Config.set("graphics", "height", str(DEFAULT_WINDOW_HEIGHT))
@@ -60,6 +61,13 @@ class DevSetupLauncherApp(App):
             TerminalScreen(
                 app_ref=self,
                 name="terminal",
+            )
+        )
+        
+        sm.add_widget(
+            FirstRunScreen(
+                app_ref=self,
+                name="first_run",
             )
         )
 

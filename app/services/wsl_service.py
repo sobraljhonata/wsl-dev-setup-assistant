@@ -1,7 +1,9 @@
+from app.config.settings import WINDOWS_WSL_COMMAND
 from app.domain.command_result import CommandResult
 from app.domain.distro import Distro
 from app.services.command_runner import CommandRunner
-from app.config.settings import WINDOWS_WSL_COMMAND as WSL_COMMAND
+
+WINDOWS_TERMINAL_COMMAND = "wt.exe"
 
 
 class WslService:
@@ -9,10 +11,10 @@ class WslService:
         self.runner = runner or CommandRunner()
 
     def get_status(self) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "--status"])
+        return self.runner.run([WINDOWS_WSL_COMMAND, "--list", "--verbose"])
 
     def fetch_available_distros(self) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "--list", "--online"])
+        return self.runner.run([WINDOWS_WSL_COMMAND, "--list", "--online"])
 
     def list_available_distros(self) -> list[Distro]:
         result = self.fetch_available_distros()
@@ -23,18 +25,35 @@ class WslService:
         return self.parse_available_distros(result.stdout)
 
     def list_installed_distros(self) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "--list", "--verbose"])
+        return self.runner.run([WINDOWS_WSL_COMMAND, "--list", "--verbose"])
+    
+    def is_distro_installed(self, distro_name: str) -> bool:
+        result = self.list_installed_distros()
+
+        if not result.succeeded:
+            return False
+
+        return distro_name.lower() in result.stdout.lower()
 
     def install_distro(self, distro_name: str) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "--install", "-d", distro_name])
+        if self.app.wsl_service.is_distro_installed(distro_name):
+            self.status_label.text = (
+                f"{distro_name} já está instalada. "
+                "Você pode avançar para a próxima etapa."
+            )
+            self.navigation.set_next_disabled(False)
+            return
+        return self.runner.run([WINDOWS_WSL_COMMAND, "--install", "-d", distro_name])
 
     def launch_distro(self, distro_name: str) -> CommandResult:
-        return self.runner.run([WSL_COMMAND, "-d", distro_name])
+        return self.runner.start_detached(
+            [WINDOWS_TERMINAL_COMMAND, WINDOWS_WSL_COMMAND, "-d", distro_name]
+        )
 
     def run_in_distro(self, distro_name: str, command: str) -> CommandResult:
         return self.runner.run(
             [
-                WSL_COMMAND,
+                WINDOWS_WSL_COMMAND,
                 "-d",
                 distro_name,
                 "--",

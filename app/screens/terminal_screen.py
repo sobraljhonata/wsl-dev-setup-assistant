@@ -4,7 +4,10 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 from app.ui.terminal_widget import TerminalWidget
-
+from app.ui.stepper import Stepper
+from app.config.settings import (
+    STEPS,
+)
 
 class TerminalScreen(Screen):
     def __init__(self, app_ref, **kwargs):
@@ -30,6 +33,11 @@ class TerminalScreen(Screen):
                 "Use os botões sugeridos para aprender o fluxo."
             ),
             size_hint_y=0.08,
+        )
+        
+        stepper = Stepper(
+            steps=STEPS,
+            current_step=2,
         )
 
         devsetup_buttons = BoxLayout(
