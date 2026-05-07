@@ -15,7 +15,10 @@ class DevSetupService:
     def bootstrap_python(self, distro_name: str) -> CommandResult:
         command = (
             "sudo apt update -y && "
-            "sudo apt install -y python3-pip python3-venv"
+            "sudo apt install -y "
+            "python3-pip "
+            "python3-venv "
+            "pipx"
         )
 
         return self.wsl_service.run_in_distro(distro_name, command)
@@ -23,7 +26,7 @@ class DevSetupService:
     def install_cli(self, distro_name: str) -> CommandResult:
         command = (
             "python3 -m pip install --user --upgrade pip && "
-            f"python3 -m pip install --user {DEVSETUP_PACKAGE}"
+            f"pipx install {DEVSETUP_PACKAGE}"
         )
 
         return self.wsl_service.run_in_distro(distro_name, command)

@@ -70,43 +70,43 @@ class TerminalScreen(Screen):
             size_hint_y=0.16,
         )
 
-        pwd_button = Button(text="pwd")
-        ls_button = Button(text="ls")
-        whoami_button = Button(text="whoami")
-        python_button = Button(text="python3 --version")
+        self.pwd_button = Button(text="pwd")
+        self.ls_button = Button(text="ls")
+        self.whoami_button = Button(text="whoami")
+        self.python_button = Button(text="python3 --version")
 
-        pwd_button.bind(
+        self.pwd_button.bind(
             on_press=lambda *_: self.run_guided_command(
                 "pwd",
                 "Mostra o diretório atual dentro do Linux.",
             )
         )
 
-        ls_button.bind(
+        self.ls_button.bind(
             on_press=lambda *_: self.run_guided_command(
                 "ls",
                 "Lista arquivos e pastas do diretório atual.",
             )
         )
 
-        whoami_button.bind(
+        self.whoami_button.bind(
             on_press=lambda *_: self.run_guided_command(
                 "whoami",
                 "Mostra o usuário Linux atual.",
             )
         )
 
-        python_button.bind(
+        self.python_button.bind(
             on_press=lambda *_: self.run_guided_command(
                 "python3 --version",
                 "Mostra a versão do Python instalada na distro.",
             )
         )
 
-        basic_buttons.add_widget(pwd_button)
-        basic_buttons.add_widget(ls_button)
-        basic_buttons.add_widget(whoami_button)
-        basic_buttons.add_widget(python_button)
+        basic_buttons.add_widget(self.pwd_button)
+        basic_buttons.add_widget(self.ls_button)
+        basic_buttons.add_widget(self.whoami_button)
+        basic_buttons.add_widget(self.python_button)
 
         self.terminal = TerminalWidget(
             on_execute=self.run_custom_command,
@@ -243,3 +243,7 @@ class TerminalScreen(Screen):
         self.help_button.disabled = disabled
         self.doctor_button.disabled = disabled
         self.dry_run_button.disabled = disabled
+        self.pwd_button.disabled = disabled
+        self.ls_button.disabled = disabled
+        self.whoami_button.disabled = disabled
+        self.python_button.disabled = disabled
