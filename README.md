@@ -27,7 +27,7 @@ O objetivo não é esconder o Linux, mas ajudar o usuário a aprender Linux com 
 
 ---
 
-## 🚀 MVP Atual
+## ✨ Funcionalidades atuais
 
 * Verificação do WSL
 * Listagem de distribuições disponíveis
