@@ -1,7 +1,11 @@
+import tempfile
+from pathlib import Path
+
 from app.config.settings import WINDOWS_WSL_COMMAND
 from app.domain.command_result import CommandResult
 from app.domain.distro import Distro
 from app.services.command_runner import CommandRunner
+import textwrap
 
 WINDOWS_TERMINAL_COMMAND = "wt.exe"
 
@@ -16,38 +20,25 @@ class WslService:
     def fetch_available_distros(self) -> CommandResult:
         return self.runner.run([WINDOWS_WSL_COMMAND, "--list", "--online"])
 
-    def list_available_distros(self) -> list[Distro]:
-        result = self.fetch_available_distros()
-
-        if not result.succeeded:
-            return []
-
-        return self.parse_available_distros(result.stdout)
-
     def list_installed_distros(self) -> CommandResult:
         return self.runner.run([WINDOWS_WSL_COMMAND, "--list", "--verbose"])
-    
-    def is_distro_installed(self, distro_name: str) -> bool:
-        result = self.list_installed_distros()
-
-        if not result.succeeded:
-            return False
-
-        return distro_name.lower() in result.stdout.lower()
 
     def install_distro(self, distro_name: str) -> CommandResult:
-        if self.app.wsl_service.is_distro_installed(distro_name):
-            self.status_label.text = (
-                f"{distro_name} já está instalada. "
-                "Você pode avançar para a próxima etapa."
-            )
-            self.navigation.set_next_disabled(False)
-            return
         return self.runner.run([WINDOWS_WSL_COMMAND, "--install", "-d", distro_name])
 
     def launch_distro(self, distro_name: str) -> CommandResult:
-        return self.runner.start_detached(
-            [WINDOWS_TERMINAL_COMMAND, WINDOWS_WSL_COMMAND, "-d", distro_name]
+        return self.runner.start_external_terminal(
+            [
+                WINDOWS_TERMINAL_COMMAND,
+                "new-tab",
+                "--title",
+                distro_name,
+                WINDOWS_WSL_COMMAND,
+                "-d",
+                distro_name,
+                "--cd",
+                "~",
+            ]
         )
 
     def run_in_distro(self, distro_name: str, command: str) -> CommandResult:
@@ -60,6 +51,31 @@ class WslService:
                 "bash",
                 "-lc",
                 command,
+            ]
+        )
+
+    def run_script_in_external_terminal(
+        self,
+        distro_name: str,
+        script_content: str,
+    ) -> CommandResult:
+        script_path = self._create_temp_script(script_content)
+        wsl_script_path = self._to_wsl_path(script_path)
+
+        return self.runner.start_external_terminal(
+            [
+                WINDOWS_TERMINAL_COMMAND,
+                "new-tab",
+                "--title",
+                f"{distro_name} setup",
+                WINDOWS_WSL_COMMAND,
+                "-d",
+                distro_name,
+                "--cd",
+                "~",
+                "--",
+                "bash",
+                wsl_script_path,
             ]
         )
 
@@ -88,3 +104,26 @@ class WslService:
             distros.append(Distro(name=name, friendly_name=friendly_name))
 
         return distros
+
+    def _create_temp_script(self, script_content: str) -> Path:
+        script_dir = Path(tempfile.gettempdir()) / "wsl-dev-setup-assistant"
+        script_dir.mkdir(parents=True, exist_ok=True)
+
+        script_path = script_dir / "setup.sh"
+
+        normalized_script = textwrap.dedent(script_content).strip() + "\n"
+
+        script_path.write_text(
+            normalized_script,
+            encoding="utf-8",
+            newline="\n",
+        )
+
+        return script_path
+
+    def _to_wsl_path(self, path: Path) -> str:
+        resolved_path = path.resolve()
+        drive = resolved_path.drive.replace(":", "").lower()
+        relative_path = str(resolved_path)[3:].replace("\\", "/")
+
+        return f"/mnt/{drive}/{relative_path}"

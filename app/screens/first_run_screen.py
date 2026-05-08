@@ -7,7 +7,7 @@ from app.ui.navigation_bar import NavigationBar
 from app.ui.page_container import PageContainer
 from app.ui.stepper import Stepper
 from app.config.settings import (
-    STEPS,
+    APP_STEPS,
 )
 
 
@@ -21,7 +21,7 @@ class FirstRunScreen(Screen):
         layout = PageContainer()
 
         stepper = Stepper(
-            steps=STEPS,
+            APP_STEPS=APP_STEPS,
             current_step=3,
         )
 

@@ -9,6 +9,7 @@ class NavigationBar(BoxLayout):
         self,
         on_back: Callable[[], None] | None = None,
         on_next: Callable[[], None] | None = None,
+        on_home: Callable[[], None] | None = None,
         next_disabled: bool = False,
         **kwargs,
     ):
@@ -17,6 +18,11 @@ class NavigationBar(BoxLayout):
             spacing=10,
             size_hint_y=0.12,
             **kwargs,
+        )
+
+        self.home_button = Button(
+            text="Home",
+            disabled=on_home is None,
         )
 
         self.back_button = Button(
@@ -29,12 +35,16 @@ class NavigationBar(BoxLayout):
             disabled=next_disabled or on_next is None,
         )
 
+        if on_home:
+            self.home_button.bind(on_press=lambda *_: on_home())
+
         if on_back:
             self.back_button.bind(on_press=lambda *_: on_back())
 
         if on_next:
             self.next_button.bind(on_press=lambda *_: on_next())
 
+        self.add_widget(self.home_button)
         self.add_widget(self.back_button)
         self.add_widget(self.next_button)
 

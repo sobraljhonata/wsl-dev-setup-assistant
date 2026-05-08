@@ -96,3 +96,24 @@ class CommandRunner:
                 ),
                 return_code=127,
             )
+    def start_external_terminal(self, command: list[str]) -> CommandResult:
+        try:
+            subprocess.Popen(
+                command,
+                shell=False,
+            )
+
+            return CommandResult(
+                command=" ".join(command),
+                stdout="Terminal externo iniciado.",
+                stderr="",
+                return_code=0,
+            )
+
+        except FileNotFoundError:
+            return CommandResult(
+                command=" ".join(command),
+                stdout="",
+                stderr=f"Comando não encontrado: {command[0]}",
+                return_code=127,
+            )

@@ -10,7 +10,7 @@ WINDOWS_WSL_COMMAND = "wsl.exe"
 DEFAULT_WINDOW_WIDTH = 1200
 DEFAULT_WINDOW_HEIGHT = 800
 
-STEPS = [
+APP_STEPS = [
     "Boas-vindas",
     "WSL",
     "Distro",

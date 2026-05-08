@@ -62,7 +62,7 @@ subprocess / wsl.exe
 
 * Windows 10/11
 * WSL habilitado
-* Python 3.12
+* Python 3.12 link para download [Microsoft](https://apps.microsoft.com/detail/9ncvdn91xzqp?hl=pt-BR&gl=BR) ou [Repo Python Oficial](https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe)
 * pip
 * Git
 

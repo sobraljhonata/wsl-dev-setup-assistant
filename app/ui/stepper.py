@@ -5,7 +5,7 @@ from kivy.uix.label import Label
 class Stepper(BoxLayout):
     def __init__(
         self,
-        steps: list[str],
+        APP_STEPS: list[str],
         current_step: int,
         **kwargs,
     ):
@@ -16,7 +16,7 @@ class Stepper(BoxLayout):
             **kwargs,
         )
 
-        for index, step in enumerate(steps):
+        for index, step in enumerate(APP_STEPS):
             prefix = self._get_prefix(index, current_step)
 
             label = Label(
